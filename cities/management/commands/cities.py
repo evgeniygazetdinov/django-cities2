@@ -136,7 +136,7 @@ class Command(BaseCommand):
             help="Do not show the progress bar."
         )
 
-    @transaction.atomic
+    # @transaction.atomic
     def handle(self, *args, **options):
         self.download_cache = {}
         self.options = options
@@ -296,8 +296,9 @@ class Command(BaseCommand):
                 pass
 
             # Make importing countries idempotent
-            country, created = Country.objects.update_or_create(id=country_id, defaults=defaults)
-
+            with transaction.atomic():
+                country, created = Country.objects.update_or_create(id=country_id, defaults=defaults)
+            
             self.logger.debug("%s country '%s'",
                               "Added" if created else "Updated",
                               defaults['name'])
@@ -366,8 +367,9 @@ class Command(BaseCommand):
                                     defaults['name'], country_code)
                 continue
 
-            region, created = Region.objects.update_or_create(id=region_id, defaults=defaults)
-
+            with transaction.atomic():
+                region, created = Region.objects.update_or_create(id=region_id, defaults=defaults)
+            
             if not self.call_hook('region_post', region, item):
                 continue
 
@@ -438,8 +440,9 @@ class Command(BaseCommand):
                                   item['code'], defaults['name'])
                 continue
 
-            subregion, created = Subregion.objects.update_or_create(id=subregion_id, defaults=defaults)
-
+            with transaction.atomic():
+                subregion, created = Subregion.objects.update_or_create(id=subregion_id, defaults=defaults)
+            
             if not self.call_hook('subregion_post', subregion, item):
                 continue
 
@@ -545,9 +548,10 @@ class Command(BaseCommand):
                             self.logger.debug("%s: %s: Cannot find subregion: '%s'",
                                               country_code, item['name'], subregion_code)
                         defaults['subregion'] = None
-
-            city, created = City.objects.update_or_create(id=city_id, defaults=defaults)
-
+            
+            with transaction.atomic():
+                city, created = City.objects.update_or_create(id=city_id, defaults=defaults)
+            
             if not self.call_hook('city_post', city, item):
                 continue
 
@@ -671,7 +675,9 @@ class Command(BaseCommand):
                 # *except* for its id
                 for key, value in defaults.items():
                     setattr(district, key, value)
-                district.save()
+                with transaction.atomic():
+                    district.save()
+                
                 created = False
 
             if not self.call_hook('district_post', district, item):
@@ -796,8 +802,9 @@ class Command(BaseCommand):
                     self.logger.debug("Unknown alternative name type: {} -- skipping".format(locale))
                     continue
 
-            alt.save()
-            geo_info['object'].alt_names.add(alt)
+            with transaction.atomic():
+                alt.save()
+                geo_info['object'].alt_names.add(alt)
 
             if not self.call_hook('alt_name_post', alt, item):
                 continue
@@ -1068,8 +1075,9 @@ class Command(BaseCommand):
                                     item['latitude'], str(e))
                 pc.location = None
 
-            pc.save()
-
+            with transaction.atomic():
+                pc.save()
+            
             if not self.call_hook('postal_code_post', pc, item):
                 continue
 
