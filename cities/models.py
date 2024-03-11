@@ -28,7 +28,7 @@ __all__ = [
 ]
 
 
-if DJANGO_VERSION < 2:
+if DJANGO_VERSION < (2, 0):
     from django.contrib.gis.db.models import GeoManager
 else:
     from django.db.models import Manager as GeoManager
