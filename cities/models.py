@@ -18,7 +18,7 @@ from django.contrib.gis.geos import Point
 from model_utils import Choices
 import swapper
 
-from .conf import (ALTERNATIVE_NAME_TYPES, SLUGIFY_FUNCTION, DJANGO_VERSION)
+from .conf import (ALTERNATIVE_NAME_TYPES, SLUGIFY_FUNCTION)
 from .managers import AlternativeNameManager
 from .util import unicode_func
 
