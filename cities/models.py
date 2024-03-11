@@ -1,6 +1,8 @@
 from random import choice
 from string import ascii_uppercase, digits
-if DJANGO_VERSION < 4:
+from django import VERSION as DJANGO_VERSION
+
+if DJANGO_VERSION < (4, 0):
     try:
         from django.utils.encoding import force_unicode as force_text
     except (NameError, ImportError):
